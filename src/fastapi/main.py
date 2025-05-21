@@ -73,6 +73,9 @@ class PineconeIndexDeleteResponse(BaseModel):
     deleted: bool
     message: str
 
+class Request(BaseModel):
+    prompt: List[Content]
+
 # --- Helper Functions (MongoDB Operations) ---
 def get_all_file_records() -> List[FileRecord]:
     """
