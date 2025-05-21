@@ -3,8 +3,11 @@ import random
 import time
 from datetime import datetime
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-API_URL = "http://localhost:8000"
+API_URL=os.getenv("API_URL", "http://localhost:8000")
 
 # Function to send a POST request to the API
 def post_request(input_data):
@@ -164,14 +167,14 @@ with st.container():
             """, unsafe_allow_html=True)
         
         # Clear the input box
-        st.experimental_rerun()
+        st.rerun()
 
 # Add a clear button
 if st.button("Clear Conversation"):
     st.session_state.messages = [
         {"role": "bot", "content": "Hello! How can I help you today? You can also check the File Manager in the sidebar."}
     ]
-    st.experimental_rerun()
+    st.rerun()
 
 # Display information about the app
 with st.expander("About this app"):
