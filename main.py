@@ -21,7 +21,7 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DATABASE_NAME = os.getenv("MONGODB_DATABASE_NAME")
 MONGODB_COLLECTION_FILES = "files"
 
-# --- Initialize MongoDB ---
+# --- Initialize MongoDB ---ฟฟ
 mongo_client: Optional[MongoClient] = None
 files_collection = None
 try:
@@ -116,6 +116,11 @@ def chat(contents, context=None):
     )
     return response
 
+
+# Initialize a Pinecone client with your API key
+# pc = Pinecone(api_key='pcsk_4gAyHb_CLkbhbpJBvFvEjEq8FBAunpg3tARThxfmjLhXUbR7TSb6PbWRZLVmZiRgDHA9Fu')
+# INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+# index = pc.Index('rag-app')
 # def get_context(user_input: str):
 #     keywords = {"หนัง":"movie", "เพลง":"music", "เกม":"game", "สัตว์":"animal"}
 #     for word in keywords:
@@ -129,6 +134,7 @@ def chat(contents, context=None):
 #                     }
 #                 }
 #                 )
+#                 # print(results)
 #                 return results['result']['hits'][0]['fields']['chunk_text']
     
 #     return None
@@ -145,9 +151,9 @@ class Request(BaseModel):
 async def post_chat(request: Request):
     context = None
     # 1.รับ context จาก PC ถ้าจะเป็นต้องใช้
-    # latest = user_input = prompt[-1].parts[0].text
+    # user_input = request.prompt[-1].parts[0].text
     # if get_context(user_input):
-    #     context = get_context(user_input)        
+    #     context = get_context(user_input)
     # print(f"Context: {context}")
 
     # 2.ส่งคำถามไปหาแชท
