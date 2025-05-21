@@ -3,8 +3,11 @@ import random
 import time
 from datetime import datetime
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-API_URL = "http://localhost:8000"
+API_URL=os.getenv("API_URL", "http://localhost:8000")
 
 # Function to send a POST request to the API
 def post_request(input_data):
