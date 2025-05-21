@@ -2,6 +2,19 @@ import streamlit as st
 import random
 import time
 from datetime import datetime
+import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+API_URL=os.getenv("API_URL", "http://localhost:8000")
+
+# Function to send a POST request to the API
+def post_request(input_data):
+    headers = {"Content-Type": "application/json"}
+    data = {"prompt": input_data}
+    response = requests.post(API_URL+'/chat', json=data, headers=headers)
+    return response.json()
 
 # Set page configuration
 st.set_page_config(
@@ -47,13 +60,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # App title
-st.title("💬 Chatbot")
-st.caption("A chatbot with dummy responses")
+st.title("💬 Mimi")
+st.caption("A chatbot with Mimi")
 
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "bot", "content": "Hello! How can I help you today? You can also check the File Manager in the sidebar."}
+        {
+            "role": "assistant",
+            "parts": [
+                {"text": "สวัสดีค่ะ! มีมี่เองค่า วันนี้มีอะไรให้มีมี่ช่วยเหลือหรือเปล่าคะ?"}
+            ]
+        },    
     ]
 
 # Dummy responses
@@ -105,8 +123,8 @@ for message in st.session_state.messages:
     with st.container():
         st.markdown(f"""
         <div class="chat-message {message['role']}">
-            <img class="avatar" src="{'https://api.dicebear.com/7.x/bottts/svg?seed=bot' if message['role'] == 'bot' else 'https://api.dicebear.com/7.x/personas/svg?seed=user'}" />
-            <div class="message">{message['content']}</div>
+            <img class="avatar" src="{'https://api.dicebear.com/9.x/bottts/svg?seed=Jessica' if message['role'] == 'assistant' else 'https://api.dicebear.com/7.x/personas/svg?seed=user'}" />
+            <div class="message">{message['parts'][0]['text']}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -117,8 +135,12 @@ with st.container():
     # Handle user input
     if user_input:
         # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
+        st.session_state.messages.append( {
+            "role": "user",
+            "parts": [
+                {"text": user_input}
+            ]
+        })
         # Display user message
         with st.container():
             st.markdown(f"""
@@ -130,29 +152,29 @@ with st.container():
         
         # Get bot response
         with st.spinner("Thinking..."):
-            response = get_dummy_response(user_input)
+            response = post_request(st.session_state.messages)
         
         # Add bot response to chat history
-        st.session_state.messages.append({"role": "bot", "content": response})
+        st.session_state.messages.append({"role": "assistant", "parts": [{"text": response['prompt'][-1]['parts'][0]['text']}]})
         
         # Display bot response
         with st.container():
             st.markdown(f"""
             <div class="chat-message bot">
-                <img class="avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=bot" />
-                <div class="message">{response}</div>
+                <img class="avatar" src="https://api.dicebear.com/9.x/bottts/svg?seed=Jessica" />
+                <div class="message">{response['prompt'][-1]['parts'][0]['text']}</div>
             </div>
             """, unsafe_allow_html=True)
         
         # Clear the input box
-        st.experimental_rerun()
+        st.rerun()
 
 # Add a clear button
 if st.button("Clear Conversation"):
     st.session_state.messages = [
         {"role": "bot", "content": "Hello! How can I help you today? You can also check the File Manager in the sidebar."}
     ]
-    st.experimental_rerun()
+    st.rerun()
 
 # Display information about the app
 with st.expander("About this app"):
