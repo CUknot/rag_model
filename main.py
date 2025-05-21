@@ -12,6 +12,10 @@ load_dotenv()
 
 app = FastAPI()
 
+# --- Initialize Model ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
+
 # --- Configuration ---
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DATABASE_NAME = os.getenv("MONGODB_DATABASE_NAME")
@@ -138,7 +142,7 @@ class Request(BaseModel):
     prompt: List[Content]
 
 @app.post("/chat")
-async def chat(request: Request):
+async def post_chat(request: Request):
     context = None
     # 1.รับ context จาก PC ถ้าจะเป็นต้องใช้
     # latest = user_input = prompt[-1].parts[0].text
