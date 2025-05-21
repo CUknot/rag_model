@@ -96,7 +96,7 @@ def get_context(user_input: str):
                 }
                 )
                 print(f"Results: {results}")
-                return results['result']['hits'][0]['fields']['text']    
+                return results['result']['hits'][0]['fields']['chunk_text']    
     return None
 
 # --- Helper Functions (MongoDB Operations) ---
@@ -459,7 +459,7 @@ async def get_pinecone_info_endpoint():
 @app.delete("/pinecone-index/", response_model=PineconeIndexDeleteResponse)
 async def delete_pinecone_index_endpoint(
     confirm: bool = Query(
-        False,
+        True,
         description="Set to `true` to confirm deletion of the entire Pinecone index. USE WITH EXTREME CAUTION!"
     )
 ):
@@ -511,6 +511,22 @@ async def post_chat(request: Request):
     if not add_chat_log_entry(user_input, request.prompt[-1].parts[0].text):
         print("Failed to save chat log entry to MongoDB.")
     return request
+
+@app.get("/get_context/")
+async def get_context_endpoint(query: str = Query(..., description="The user query to retrieve context for.")):
+    """
+    Retrieves and returns relevant context from Pinecone based on the provided query.
+    This endpoint is useful for debugging the RAG context retrieval mechanism.
+    """
+    try:
+        context = get_context(query)
+        if context is not None:
+            return {"query": query, "context": context, "status": "Context found"}
+        else:
+            return {"query": query, "context": None, "status": "No relevant context found in Pinecone for the given query."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving context: {e}")
+
 
 if __name__ == "__main__":
     import uvicorn

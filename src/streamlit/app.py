@@ -167,14 +167,14 @@ with st.container():
             """, unsafe_allow_html=True)
         
         # Clear the input box
-        st.rerun()
+        # st.rerun()
 
 # Add a clear button
 if st.button("Clear Conversation"):
     st.session_state.messages = [
         {"role": "bot", "content": "Hello! How can I help you today? You can also check the File Manager in the sidebar."}
     ]
-    st.rerun()
+    # st.rerun()
 
 # Display information about the app
 with st.expander("About this app"):

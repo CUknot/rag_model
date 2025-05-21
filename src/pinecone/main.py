@@ -65,7 +65,7 @@ def upload_text_to_pinecone(filename: str, text: str, category: str = "None") ->
     index_name = os.getenv("PINECONE_INDEX_NAME")
     
     # Use the category as the namespace, fallback to default if not provided
-    namespace = category if category != "None" else os.getenv("PINECONE_NAMESPACE", "") 
+    namespace = os.getenv("PINECONE_NAMESPACE", "") 
     if not namespace:
         namespace = "default" 
 
@@ -123,7 +123,7 @@ def upload_text_to_pinecone(filename: str, text: str, category: str = "None") ->
     batch_count = 0
     for i in range(0, len(records_to_upsert), batch_size):
         batch = records_to_upsert[i:i + batch_size]
-        index.upsert_records(records=batch, namespace=namespace) 
+        index.upsert_records(namespace, batch) 
         batch_count += 1
     
     print(f"✅ Upsert completed successfully. {batch_count} batches uploaded to namespace '{namespace}'")

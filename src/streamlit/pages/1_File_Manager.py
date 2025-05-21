@@ -32,6 +32,7 @@ st.markdown("""
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     font-family: monospace;
+    color: black; 
 }
 .category-badge {
     display: inline-block;
