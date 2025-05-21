@@ -4,6 +4,8 @@ from typing import List, Optional, Dict, Any
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
+from google import genai
+from google.genai.types import GenerateContentConfig, Content, Part
 
 # Import the Pinecone functions, including the new delete_pinecone_index
 from src.pinecone.main import (
@@ -21,6 +23,10 @@ app = FastAPI()
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DATABASE_NAME = os.getenv("MONGODB_DATABASE_NAME")
 MONGODB_COLLECTION_FILES = "files"
+
+# --- Initialize Model ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # --- Initialize MongoDB ---
 mongo_client: Optional[MongoClient] = None
@@ -66,7 +72,6 @@ class PineconeIndexDeleteResponse(BaseModel): # NEW Pydantic Model for index del
     index_name: str
     deleted: bool
     message: str
-
 
 # --- Helper Functions (MongoDB Operations) ---
 def get_all_file_records() -> List[FileRecord]:
@@ -320,6 +325,19 @@ async def delete_pinecone_index_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete Pinecone index: {e}")
 
+@app.post("/chat")
+async def chat(request: Request):
+    context = None
+    # 1.รับ context จาก PC ถ้าจะเป็นต้องใช้
+    # latest = user_input = prompt[-1].parts[0].text
+    # if get_context(user_input):
+    #     context = get_context(user_input)        
+    # print(f"Context: {context}")
+
+    # 2.ส่งคำถามไปหาแชท
+    result = chat(request.prompt, context)
+    request.prompt.append(Content(role="assistant", parts=[Part(text=result.text)]))
+    return request
 
 if __name__ == "__main__":
     import uvicorn
