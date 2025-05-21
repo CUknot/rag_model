@@ -20,7 +20,12 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "streamlit", from = "src"}]
+packages = [
+  { include = "streamlit", from = "src" },
+  { include = "fastapi", from = "src" },
+  { include = "model", from = "src" },
+  { include = "pinecone", from = "src" },
+]
 
 
 [build-system]
