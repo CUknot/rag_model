@@ -5,4 +5,4 @@ poetry install
 poetry env activate
 
 # Start the FastAPI
-poetry run uvicorn main:app --reload
+poetry run uvicorn src.fastapi.main:app --reload
