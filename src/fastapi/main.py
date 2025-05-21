@@ -13,7 +13,9 @@ from src.pinecone.main import (
     upload_text_to_pinecone,
     get_pinecone_index_info,
     delete_file_from_pinecone,
-    delete_pinecone_index
+    delete_pinecone_index,
+    _get_pinecone_index,
+    _get_pinecone_client
 )
 
 # Import the Model functions
@@ -75,6 +77,27 @@ class PineconeIndexDeleteResponse(BaseModel):
 
 class Request(BaseModel):
     prompt: List[Content]
+
+index_name = os.getenv("PINECONE_INDEX_NAME")
+namespace = os.getenv("PINECONE_NAMESPACE")
+index = _get_pinecone_index(index_name)
+def get_context(user_input: str):
+    keywords = ['rag','RAG']
+    print("get")
+    for word in keywords:
+            if word in user_input.lower():
+                results = index.search(
+                namespace=namespace,
+                query={
+                    "top_k": 10,
+                    "inputs": {
+                        "text": user_input
+                    }
+                }
+                )
+                print(f"Results: {results}")
+                return results['result']['hits'][0]['fields']['text']    
+    return None
 
 # --- Helper Functions (MongoDB Operations) ---
 def get_all_file_records() -> List[FileRecord]:
@@ -472,18 +495,17 @@ async def post_chat(request: Request):
     context = None
     # 1.รับ context จาก PC ถ้าจะเป็นต้องใช้
     user_input = request.prompt[-1].parts[0].text
-    # if get_context(user_input):
-    #     context = get_context(user_input)
-    # print(f"Context: {context}")
+    if get_context(user_input):
+        context = get_context(user_input)
+    print(f"Context: {context}")
 
     # 2.ส่งคำถามไปหาแชท
     result = get_response_from_llm(request.prompt, context)
     request.prompt.append(Content(role="assistant", parts=[Part(text=result.text)]))
 
     # Log the chat interaction to MongoDB
-    if not add_chat_log_entry(user_input, request[-1].parts[0].text):
+    if not add_chat_log_entry(user_input, request.prompt[-1].parts[0].text):
         print("Failed to save chat log entry to MongoDB.")
-
     return request
 
 if __name__ == "__main__":
