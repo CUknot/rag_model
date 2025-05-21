@@ -478,10 +478,15 @@ async def post_chat(request: Request):
 
     # 2.ส่งคำถามไปหาแชท
     result = get_response_from_llm(request.prompt, context)
-    request.prompt.append(Content(role="assistant", parts=[Part(text=result.text)]))
+    
+    # Extract the LLM's response text safely
+    llm_response_text = result.text if hasattr(result, 'text') else str(result)
+    
+    request.prompt.append(Content(role="assistant", parts=[Part(text=llm_response_text)]))
 
     # Log the chat interaction to MongoDB
-    if not add_chat_log_entry(user_input, request[-1].parts[0].text):
+    # CORRECTED LINE: Use the extracted llm_response_text
+    if not add_chat_log_entry(user_input, llm_response_text):
         print("Failed to save chat log entry to MongoDB.")
 
     return request
