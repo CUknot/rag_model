@@ -6,3 +6,6 @@ poetry env activate
 
 # Start the FastAPI
 poetry run uvicorn src.fastapi.main:app --reload
+
+# Run streamlit
+streamlit run .\src\streamlit\app.py
